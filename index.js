@@ -1,5 +1,6 @@
 let express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 require('./http_status.js');
 
@@ -17,6 +18,7 @@ let connectionPool = mysql.createPool({
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors());
 
 const PORT = process.env.PORT || 3000;
 
