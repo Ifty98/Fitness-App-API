@@ -4,7 +4,6 @@ const cors = require('cors');
 
 require('./http_status.js');
 
-
 let app = express();
 let mysql = require('mysql2');
 
