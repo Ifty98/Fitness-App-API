@@ -54,6 +54,35 @@ async function startServer() {
             );
         });
 
+        app.get('/checkUser', (req, res) => {
+            const { username, password } = req.query;
+        
+            if (!username || !password) {
+                return res.status(400).json({ error: 'Username and password are required.' });
+            }
+        
+            const trimmedUsername = username.trim();
+            const trimmedPassword = password.trim();
+        
+            connectionPool.query(
+                'SELECT id FROM user WHERE username = ? AND password = ?',
+                [trimmedUsername, trimmedPassword],
+                (err, results) => {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).json({ error: 'Internal Server Error' });
+                    }
+        
+                    if (results.length > 0) {
+                        const userId = results[0].id;
+                        res.status(200).json({ userId: userId });
+                    } else {
+                        res.status(404).json({ message: 'User not found in the database.' });
+                    }
+                }
+            );
+        });
+
         app.get('/checkUsername', (req, res) => {
             const { username } = req.query;
 
