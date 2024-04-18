@@ -163,31 +163,31 @@ async function startServer() {
 
         app.put('/updatePersonalData/:userId', (req, res) => {
             const userId = req.params.userId;
-            const { gender, age, height, weight } = req.body;
-
-            if (!userId || (!gender && !age && !height && !weight)) {
+            const { gender, age, weight } = req.body;
+        
+            if (!userId || (!gender && !age && !weight)) {
                 return res.status(400).json({ error: 'User ID and at least one field to update are required.' });
             }
-
+        
             const trimmedUserId = userId.trim();
-
+        
             connectionPool.query(
-                'UPDATE personal_data SET gender = ?, age = ?, height = ?, weight = ? WHERE user_id = ?',
-                [gender, age, height, weight, trimmedUserId],
+                'UPDATE personal_data SET gender = ?, age = ?, weight = ? WHERE user_id = ?',
+                [gender, age, weight, trimmedUserId],
                 (err, results) => {
                     if (err) {
                         console.error(err);
                         return res.status(500).json({ error: 'Internal Server Error' });
                     }
-
+        
                     if (results.affectedRows === 0) {
                         return res.status(404).json({ error: 'User ID not found in personal_data.' });
                     }
-
+        
                     res.status(200).json({ message: 'Personal data updated successfully.' });
                 }
             );
-        });
+        });        
 
         app.put('/updateProgress/:userId', (req, res) => {
             const userId = req.params.userId;
