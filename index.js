@@ -54,7 +54,7 @@ async function startServer() {
             );
         });
 
-        app.get('/checkUser', (req, res) => {
+        app.get('/getID', (req, res) => {
             const { username, password } = req.query;
         
             if (!username || !password) {
