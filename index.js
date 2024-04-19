@@ -225,7 +225,7 @@ async function startServer() {
               return res.status(400).json({ error: 'user_id, date, and steps are required' });
             }
           
-            const sql = 'INSERT INTO step-counter (user_id, date, steps) VALUES (?, ?, ?)';
+            const sql = 'INSERT INTO step_counter (user_id, date, steps) VALUES (?, ?, ?)';
             const values = [user_id, date, steps];
           
             connectionPool.query(sql, values, (err, result) => {
