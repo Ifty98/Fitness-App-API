@@ -218,6 +218,26 @@ async function startServer() {
             );
         });        
 
+        app.post('/step-counter', (req, res) => {
+            const { user_id, date, steps } = req.body;
+          
+            if (!user_id || !date || !steps) {
+              return res.status(400).json({ error: 'user_id, date, and steps are required' });
+            }
+          
+            const sql = 'INSERT INTO step_counter (user_id, date, steps) VALUES (?, ?, ?)';
+            const values = [user_id, date, steps];
+          
+            connection.query(sql, values, (err, result) => {
+              if (err) {
+                console.error('Error inserting data into step_counter:', err);
+                return res.status(500).json({ error: 'Internal Server Error' });
+              }
+              console.log('New entry added to step_counter:', result);
+              res.status(201).json({ message: 'New entry added to step_counter' });
+            });
+        });
+
         app.put('/updateProgress/:userId', (req, res) => {
             const userId = req.params.userId;
             const { physical_progress, academic_progress } = req.body;
