@@ -228,7 +228,7 @@ async function startServer() {
             const sql = 'INSERT INTO step-counter (user_id, date, steps) VALUES (?, ?, ?)';
             const values = [user_id, date, steps];
           
-            connection.query(sql, values, (err, result) => {
+            connectionPool.query(sql, values, (err, result) => {
               if (err) {
                 console.error('Error inserting data into step_counter:', err);
                 return res.status(500).json({ error: 'Internal Server Error' });
