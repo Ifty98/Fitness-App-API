@@ -56,14 +56,14 @@ async function startServer() {
 
         app.get('/getID', (req, res) => {
             const { username, password } = req.query;
-        
+
             if (!username || !password) {
                 return res.status(400).json({ error: 'Username and password are required.' });
             }
-        
+
             const trimmedUsername = username.trim();
             const trimmedPassword = password.trim();
-        
+
             connectionPool.query(
                 'SELECT id FROM user WHERE username = ? AND password = ?',
                 [trimmedUsername, trimmedPassword],
@@ -72,7 +72,7 @@ async function startServer() {
                         console.error(err);
                         return res.status(500).json({ error: 'Internal Server Error' });
                     }
-        
+
                     if (results.length > 0) {
                         const userId = results[0].id;
                         res.status(200).json({ userId: userId });
@@ -193,13 +193,13 @@ async function startServer() {
         app.put('/updatePersonalData/:userId', (req, res) => {
             const userId = req.params.userId;
             const { gender, age, weight } = req.body;
-        
+
             if (!userId || (!gender && !age && !weight)) {
                 return res.status(400).json({ error: 'User ID and at least one field to update are required.' });
             }
-        
+
             const trimmedUserId = userId.trim();
-        
+
             connectionPool.query(
                 'UPDATE personal_data SET gender = ?, age = ?, weight = ? WHERE user_id = ?',
                 [gender, age, weight, trimmedUserId],
@@ -208,33 +208,33 @@ async function startServer() {
                         console.error(err);
                         return res.status(500).json({ error: 'Internal Server Error' });
                     }
-        
+
                     if (results.affectedRows === 0) {
                         return res.status(404).json({ error: 'User ID not found in personal_data.' });
                     }
-        
+
                     res.status(200).json({ message: 'Personal data updated successfully.' });
                 }
             );
-        });        
+        });
 
         app.post('/step-counter', (req, res) => {
             const { user_id, date, steps } = req.body;
-          
+
             if (!user_id || !date || !steps) {
-              return res.status(400).json({ error: 'user_id, date, and steps are required' });
+                return res.status(400).json({ error: 'user_id, date, and steps are required' });
             }
-          
+
             const sql = 'INSERT INTO step_counter (user_id, date, steps) VALUES (?, ?, ?)';
             const values = [user_id, date, steps];
-          
+
             connectionPool.query(sql, values, (err, result) => {
-              if (err) {
-                console.error('Error inserting data into step_counter:', err);
-                return res.status(500).json({ error: 'Internal Server Error' });
-              }
-              console.log('New entry added to step_counter:', result);
-              res.status(201).json({ message: 'New entry added to step_counter' });
+                if (err) {
+                    console.error('Error inserting data into step_counter:', err);
+                    return res.status(500).json({ error: 'Internal Server Error' });
+                }
+                console.log('New entry added to step_counter:', result);
+                res.status(201).json({ message: 'New entry added to step_counter' });
             });
         });
 
@@ -290,6 +290,26 @@ async function startServer() {
                 }
             );
         });
+
+        // Define route to get projects by user_id
+        app.get('/projects/:user_id', (req, res) => {
+            const user_id = req.params.user_id;
+
+            // Query to get projects with specified user_id
+            const query = 'SELECT * FROM project WHERE user_id = ?';
+
+            // Execute the query
+            connectionPool.query(query, [user_id], (err, results) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).json({ error: 'Internal Server Error' });
+                }
+
+                // Send the results as JSON response
+                res.status(200).json(results);
+            });
+        });
+
 
         app.post('/createDisability', (req, res) => {
             const { user_id, name, description } = req.body;
