@@ -267,16 +267,16 @@ async function startServer() {
         });
 
         app.post('/createProject', (req, res) => {
-            const { user_id, name, description, deadline, status } = req.body;
-
+            const { user_id, name, description, deadline, status } = req.query;
+        
             if (!user_id || !name || !description || !deadline || !status) {
                 return res.status(400).json({ error: 'User ID, name, description, deadline, and status are required.' });
             }
-
+        
             const trimmedName = name.trim();
             const trimmedDescription = description.trim();
             const trimmedStatus = status.trim();
-
+        
             connectionPool.query(
                 'INSERT INTO project (user_id, name, description, deadline, status) VALUES (?, ?, ?, ?, ?)',
                 [user_id, trimmedName, trimmedDescription, deadline, trimmedStatus],
@@ -285,11 +285,12 @@ async function startServer() {
                         console.error(err);
                         return res.status(500).json({ error: 'Internal Server Error' });
                     }
-
+        
                     res.status(201).json({ message: 'Project created successfully.' });
                 }
             );
         });
+        
 
         // Define route to get projects by user_id
         app.get('/projects/:user_id', (req, res) => {
