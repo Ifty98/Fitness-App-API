@@ -219,15 +219,15 @@ async function startServer() {
         });
 
         app.post('/step-counter', (req, res) => {
-            const { user_id, date, steps } = req.body;
-
+            const { user_id, date, steps } = req.query;
+        
             if (!user_id || !date || !steps) {
                 return res.status(400).json({ error: 'user_id, date, and steps are required' });
             }
-
+        
             const sql = 'INSERT INTO step_counter (user_id, date, steps) VALUES (?, ?, ?)';
             const values = [user_id, date, steps];
-
+        
             connectionPool.query(sql, values, (err, result) => {
                 if (err) {
                     console.error('Error inserting data into step_counter:', err);
@@ -237,6 +237,7 @@ async function startServer() {
                 res.status(201).json({ message: 'New entry added to step_counter' });
             });
         });
+        
 
         app.put('/updateProgress/:userId', (req, res) => {
             const userId = req.params.userId;
@@ -268,7 +269,7 @@ async function startServer() {
 
         app.put('/updateProject/:projectId', (req, res) => {
             const projectId = req.params.projectId;
-            const { status } = req.body;
+            const status = req.query.status; // Retrieve status from query parameters
         
             if (!projectId || !status) {
                 return res.status(400).json({ error: 'Project ID and status are required.' });
@@ -293,6 +294,7 @@ async function startServer() {
                 }
             );
         });
+        
         
 
         app.post('/createProject', (req, res) => {
