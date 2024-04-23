@@ -266,6 +266,35 @@ async function startServer() {
             );
         });
 
+        app.put('/updateProject/:projectId', (req, res) => {
+            const projectId = req.params.projectId;
+            const { status } = req.body;
+        
+            if (!projectId || !status) {
+                return res.status(400).json({ error: 'Project ID and status are required.' });
+            }
+        
+            const trimmedStatus = status.trim();
+        
+            connectionPool.query(
+                'UPDATE project SET status = ? WHERE id = ?',
+                [trimmedStatus, projectId],
+                (err, results) => {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).json({ error: 'Internal Server Error' });
+                    }
+        
+                    if (results.affectedRows === 0) {
+                        return res.status(404).json({ error: 'Project ID not found.' });
+                    }
+        
+                    res.status(200).json({ message: 'Project status updated successfully.' });
+                }
+            );
+        });
+        
+
         app.post('/createProject', (req, res) => {
             const { user_id, name, description, deadline, status } = req.body;
 
