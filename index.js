@@ -286,7 +286,7 @@ async function startServer() {
                         return res.status(500).json({ error: 'Internal Server Error' });
                     }
         
-                    res.status(201).json({ message: 'Project created successfully.' });
+                    res.status(200).json({ message: 'Project created successfully.' });
                 }
             );
         });
