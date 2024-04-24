@@ -239,6 +239,25 @@ async function startServer() {
         });
 
 
+        app.get('/step-counter/:userId', (req, res) => {
+            const userId = req.params.userId;
+
+            connectionPool.query(
+                'SELECT * FROM step_counter WHERE user_id = ?',
+                [userId],
+                (err, results) => {
+                    if (err) {
+                        console.error('Error retrieving step-counter entries:', err);
+                        return res.status(500).json({ error: 'Internal Server Error' });
+                    }
+                    console.log('Step-counter entries retrieved successfully:', results);
+                    res.status(200).json(results);
+                }
+            );
+        });
+
+
+
         app.put('/updateProgress/:userId', (req, res) => {
             const userId = req.params.userId;
             const { physical_progress, academic_progress } = req.body;
