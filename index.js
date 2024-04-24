@@ -267,9 +267,9 @@ async function startServer() {
             );
         });
 
-        app.put('/updateProject', (req, res) => {
-            const projectId = req.query.projectId;
-            const status = req.query.status;
+        app.put('/updateProject/:projectId', (req, res) => {
+            const projectId = req.params.projectId;
+            const status = req.query.status; // Retrieve status from query parameters
         
             if (!projectId || !status) {
                 return res.status(400).json({ error: 'Project ID and status are required.' });
