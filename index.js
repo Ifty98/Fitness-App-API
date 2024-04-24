@@ -366,7 +366,7 @@ async function startServer() {
             );
         });
 
-        
+
         app.get('/subtasks/:projectId', (req, res) => {
             const projectId = req.params.projectId;
 
@@ -389,13 +389,13 @@ async function startServer() {
         app.put('/updateSubtask/:subtaskId', (req, res) => {
             const subtaskId = req.params.subtaskId;
             const { status } = req.query; // Retrieve status from query parameters
-        
+
             if (!subtaskId || !status) {
                 return res.status(400).json({ error: 'Subtask ID and status are required.' });
             }
-        
+
             const trimmedStatus = status.trim();
-        
+
             connectionPool.query(
                 'UPDATE subtask SET status = ? WHERE id = ?',
                 [trimmedStatus, subtaskId],
@@ -404,19 +404,19 @@ async function startServer() {
                         console.error(err);
                         return res.status(500).json({ error: 'Internal Server Error' });
                     }
-        
+
                     if (results.affectedRows === 0) {
                         return res.status(404).json({ error: 'Subtask ID not found.' });
                     }
-        
+
                     res.status(200).json({ message: 'Subtask status updated successfully.' });
                 }
             );
-        });        
+        });
 
         app.delete('/subtasks/:subtaskId', (req, res) => {
             const subtaskId = req.params.subtaskId;
-        
+
             // Your logic to delete the subtask from the database
             connectionPool.query(
                 'DELETE FROM subtask WHERE id = ?',
@@ -430,7 +430,41 @@ async function startServer() {
                     res.status(200).json({ message: 'Subtask deleted successfully' });
                 }
             );
-        });        
+        });
+
+        // Express route to delete a project by ID and its associated subtasks
+        app.delete('/projects/:projectId', (req, res) => {
+            const projectId = req.params.projectId;
+
+            // Delete subtasks associated with the project
+            connectionPool.query(
+                'DELETE FROM subtask WHERE project_id = ?',
+                [projectId],
+                (subtaskErr, subtaskResults) => {
+                    if (subtaskErr) {
+                        console.error('Error deleting subtasks:', subtaskErr);
+                        return res.status(500).json({ error: 'Internal Server Error' });
+                    }
+                    console.log('Subtasks deleted successfully:', subtaskResults);
+
+                    // Now delete the project
+                    connectionPool.query(
+                        'DELETE FROM project WHERE id = ?',
+                        [projectId],
+                        (projectErr, projectResults) => {
+                            if (projectErr) {
+                                console.error('Error deleting project:', projectErr);
+                                return res.status(500).json({ error: 'Internal Server Error' });
+                            }
+                            console.log('Project deleted successfully:', projectResults);
+                            res.status(200).json({ message: 'Project and associated subtasks deleted successfully' });
+                        }
+                    );
+                }
+            );
+        });
+
+
 
 
         app.post('/createDisability', (req, res) => {
