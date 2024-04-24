@@ -366,7 +366,7 @@ async function startServer() {
             );
         });
 
-        // Assuming you're using Express.js
+        
         app.get('/subtasks/:projectId', (req, res) => {
             const projectId = req.params.projectId;
 
@@ -385,6 +385,34 @@ async function startServer() {
             );
         });
 
+
+        app.put('/updateSubtask/:subtaskId', (req, res) => {
+            const subtaskId = req.params.subtaskId;
+            const { status } = req.query; // Retrieve status from query parameters
+        
+            if (!subtaskId || !status) {
+                return res.status(400).json({ error: 'Subtask ID and status are required.' });
+            }
+        
+            const trimmedStatus = status.trim();
+        
+            connectionPool.query(
+                'UPDATE subtask SET status = ? WHERE id = ?',
+                [trimmedStatus, subtaskId],
+                (err, results) => {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).json({ error: 'Internal Server Error' });
+                    }
+        
+                    if (results.affectedRows === 0) {
+                        return res.status(404).json({ error: 'Subtask ID not found.' });
+                    }
+        
+                    res.status(200).json({ message: 'Subtask status updated successfully.' });
+                }
+            );
+        });        
 
 
         app.post('/createDisability', (req, res) => {
