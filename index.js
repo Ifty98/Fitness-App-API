@@ -414,6 +414,24 @@ async function startServer() {
             );
         });        
 
+        app.delete('/subtasks/:subtaskId', (req, res) => {
+            const subtaskId = req.params.subtaskId;
+        
+            // Your logic to delete the subtask from the database
+            connectionPool.query(
+                'DELETE FROM subtask WHERE id = ?',
+                [subtaskId],
+                (err, results) => {
+                    if (err) {
+                        console.error('Error deleting subtask:', err);
+                        return res.status(500).json({ error: 'Internal Server Error' });
+                    }
+                    console.log('Subtask deleted successfully:', results);
+                    res.status(200).json({ message: 'Subtask deleted successfully' });
+                }
+            );
+        });        
+
 
         app.post('/createDisability', (req, res) => {
             const { user_id, name, description } = req.body;
