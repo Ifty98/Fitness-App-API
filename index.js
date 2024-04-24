@@ -267,9 +267,9 @@ async function startServer() {
             );
         });
 
-        app.put('/updateProject/:projectId', (req, res) => {
-            const projectId = req.params.projectId;
-            const status = req.query.status; // Retrieve status from query parameters
+        app.put('/updateProject', (req, res) => {
+            const projectId = req.query.projectId;
+            const status = req.query.status;
         
             if (!projectId || !status) {
                 return res.status(400).json({ error: 'Project ID and status are required.' });
@@ -293,7 +293,7 @@ async function startServer() {
                     res.status(200).json({ message: 'Project status updated successfully.' });
                 }
             );
-        });
+        });        
         
         
 
@@ -367,8 +367,6 @@ async function startServer() {
         });
         
         
-
-
         app.post('/createDisability', (req, res) => {
             const { user_id, name, description } = req.body;
 
