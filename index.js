@@ -220,14 +220,14 @@ async function startServer() {
 
         app.post('/step-counter', (req, res) => {
             const { user_id, date, steps } = req.query;
-        
+
             if (!user_id || !date || !steps) {
                 return res.status(400).json({ error: 'user_id, date, and steps are required' });
             }
-        
+
             const sql = 'INSERT INTO step_counter (user_id, date, steps) VALUES (?, ?, ?)';
             const values = [user_id, date, steps];
-        
+
             connectionPool.query(sql, values, (err, result) => {
                 if (err) {
                     console.error('Error inserting data into step_counter:', err);
@@ -237,7 +237,7 @@ async function startServer() {
                 res.status(201).json({ message: 'New entry added to step_counter' });
             });
         });
-        
+
 
         app.put('/updateProgress/:userId', (req, res) => {
             const userId = req.params.userId;
@@ -270,13 +270,13 @@ async function startServer() {
         app.put('/updateProject/:projectId', (req, res) => {
             const projectId = req.params.projectId;
             const status = req.query.status; // Retrieve status from query parameters
-        
+
             if (!projectId || !status) {
                 return res.status(400).json({ error: 'Project ID and status are required.' });
             }
-        
+
             const trimmedStatus = status.trim();
-        
+
             connectionPool.query(
                 'UPDATE project SET status = ? WHERE id = ?',
                 [trimmedStatus, projectId],
@@ -285,17 +285,17 @@ async function startServer() {
                         console.error(err);
                         return res.status(500).json({ error: 'Internal Server Error' });
                     }
-        
+
                     if (results.affectedRows === 0) {
                         return res.status(404).json({ error: 'Project ID not found.' });
                     }
-        
+
                     res.status(200).json({ message: 'Project status updated successfully.' });
                 }
             );
-        });        
-        
-        
+        });
+
+
 
         app.post('/createProject', (req, res) => {
             const { user_id, name, description, deadline, status } = req.body;
@@ -321,7 +321,7 @@ async function startServer() {
                 }
             );
         });
-        
+
 
         // Define route to get projects by user_id
         app.get('/projects/:user_id', (req, res) => {
@@ -344,14 +344,14 @@ async function startServer() {
 
         app.post('/createSubtask', (req, res) => {
             const { project_id, name, status } = req.query;
-        
+
             if (!project_id || !name || !status) {
                 return res.status(400).json({ error: 'project_id, name, and status are required' });
             }
-        
+
             const trimmedName = name.trim();
             const trimmedStatus = status.trim();
-        
+
             connectionPool.query(
                 'INSERT INTO subtask (project_id, name, status) VALUES (?, ?, ?)',
                 [project_id, trimmedName, trimmedStatus],
@@ -365,8 +365,28 @@ async function startServer() {
                 }
             );
         });
-        
-        
+
+        // Assuming you're using Express.js
+        app.get('/subtasks/:projectId', (req, res) => {
+            const projectId = req.params.projectId;
+
+            // Query the database to retrieve subtasks with the specified projectId
+            connectionPool.query(
+                'SELECT * FROM subtask WHERE project_id = ?',
+                [projectId],
+                (err, results) => {
+                    if (err) {
+                        console.error('Error retrieving subtasks:', err);
+                        return res.status(500).json({ error: 'Internal Server Error' });
+                    }
+                    console.log('Subtasks retrieved successfully:', results);
+                    res.status(200).json(results);
+                }
+            );
+        });
+
+
+
         app.post('/createDisability', (req, res) => {
             const { user_id, name, description } = req.body;
 
