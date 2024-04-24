@@ -342,6 +342,32 @@ async function startServer() {
             });
         });
 
+        app.post('/createSubtask', (req, res) => {
+            const { project_id, name, status } = req.query;
+        
+            if (!project_id || !name || !status) {
+                return res.status(400).json({ error: 'project_id, name, and status are required' });
+            }
+        
+            const trimmedName = name.trim();
+            const trimmedStatus = status.trim();
+        
+            connectionPool.query(
+                'INSERT INTO subtask (project_id, name, status) VALUES (?, ?, ?)',
+                [project_id, trimmedName, trimmedStatus],
+                (err, results) => {
+                    if (err) {
+                        console.error('Error inserting data into subtask:', err);
+                        return res.status(500).json({ error: 'Internal Server Error' });
+                    }
+                    console.log('New entry added to subtask:', results);
+                    res.status(201).json({ message: 'New entry added to subtask' });
+                }
+            );
+        });
+        
+        
+
 
         app.post('/createDisability', (req, res) => {
             const { user_id, name, description } = req.body;
