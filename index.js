@@ -83,6 +83,24 @@ async function startServer() {
             );
         });
 
+        app.get('/personal-data/:userId', (req, res) => {
+            const userId = req.params.userId;
+
+            connectionPool.query(
+                'SELECT * FROM personal_data WHERE user_id = ?',
+                [userId],
+                (err, results) => {
+                    if (err) {
+                        console.error('Error retrieving personal data:', err);
+                        return res.status(500).json({ error: 'Internal Server Error' });
+                    }
+                    console.log('Personal data retrieved successfully:', results);
+                    res.status(200).json(results);
+                }
+            );
+        });
+
+
         app.get('/checkUsername', (req, res) => {
             const { username } = req.query;
 
