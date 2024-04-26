@@ -127,24 +127,30 @@ async function startServer() {
         app.put('/user/:id', (req, res) => {
             const userId = req.params.id;
             const newPassword = req.query.password;
-
+        
             if (!newPassword) {
                 res.status(400).send('New password is required');
                 return;
             }
-
+        
             const query = 'UPDATE user SET password = ? WHERE id = ?';
-
+        
             connectionPool.query(query, [newPassword, userId], (error, results) => {
                 if (error) {
                     console.error('Error updating password:', error);
                     res.status(500).send('Error updating password');
                     return;
                 }
-
-                res.status(200).json({ message: 'Changed password succesfully' });
+        
+                if (results.affectedRows === 0) {
+                    res.status(404).json({ message: 'User not found' });
+                    return;
+                }
+        
+                res.status(200).json({ message: 'Changed password successfully' });
             });
         });
+        
 
 
         app.get('/checkUsername', (req, res) => {
