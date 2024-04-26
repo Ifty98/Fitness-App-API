@@ -124,9 +124,9 @@ async function startServer() {
             );
         });
 
-        app.put('/user/:id/password', (req, res) => {
+        app.put('/user/:id', (req, res) => {
             const userId = req.params.id;
-            const newPassword = req.query.newPassword;
+            const newPassword = req.query.password;
 
             if (!newPassword) {
                 res.status(400).send('New password is required');
