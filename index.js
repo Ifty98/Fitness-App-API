@@ -135,7 +135,7 @@ async function startServer() {
         
             const query = 'UPDATE user SET password = ? WHERE id = ?';
         
-            connectionPool.query(query, [newPassword, userId], (error, results) => {
+            connectionPool.query(query, [password, userId], (error, results) => {
                 if (error) {
                     console.error('Error updating password:', error);
                     res.status(500).send('Error updating password');
