@@ -142,7 +142,7 @@ async function startServer() {
                     return;
                 }
 
-                res.send('Password updated successfully');
+                res.status(200).json({ message: 'Changed password succesfully' });
             });
         });
 
