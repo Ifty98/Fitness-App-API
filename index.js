@@ -54,6 +54,30 @@ async function startServer() {
             );
         });
 
+        app.get('/user/:id', (req, res) => {
+            const userId = req.params.id;
+          
+            // Query to get username and password of user by ID
+            const query = 'SELECT username, password FROM user WHERE id = ?';
+          
+            connectionPool.query(query, [userId], (error, results) => {
+              if (error) {
+                console.error('Error retrieving user:', error);
+                res.status(500).send('Error retrieving user');
+                return;
+              }
+          
+              if (results.length === 0) {
+                res.status(404).send('User not found');
+                return;
+              }
+          
+              const user = results[0];
+              res.json(user);
+            });
+        });
+
+
         app.get('/getID', (req, res) => {
             const { username, password } = req.query;
 
@@ -360,7 +384,6 @@ async function startServer() {
         });
 
 
-        // Define route to get projects by user_id
         app.get('/projects/:user_id', (req, res) => {
             const user_id = req.params.user_id;
 
