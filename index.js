@@ -56,24 +56,24 @@ async function startServer() {
 
         app.get('/user/:id', (req, res) => {
             const userId = req.params.id;
-          
+
             // Query to get username and password of user by ID
             const query = 'SELECT username, password FROM user WHERE id = ?';
-          
+
             connectionPool.query(query, [userId], (error, results) => {
-              if (error) {
-                console.error('Error retrieving user:', error);
-                res.status(500).send('Error retrieving user');
-                return;
-              }
-          
-              if (results.length === 0) {
-                res.status(404).send('User not found');
-                return;
-              }
-          
-              const user = results[0];
-              res.json(user);
+                if (error) {
+                    console.error('Error retrieving user:', error);
+                    res.status(500).send('Error retrieving user');
+                    return;
+                }
+
+                if (results.length === 0) {
+                    res.status(404).send('User not found');
+                    return;
+                }
+
+                const user = results[0];
+                res.json(user);
             });
         });
 
@@ -122,6 +122,28 @@ async function startServer() {
                     res.status(200).json(results);
                 }
             );
+        });
+
+        app.put('/user/:id/password', (req, res) => {
+            const userId = req.params.id;
+            const newPassword = req.query.newPassword;
+
+            if (!newPassword) {
+                res.status(400).send('New password is required');
+                return;
+            }
+
+            const query = 'UPDATE user SET password = ? WHERE id = ?';
+
+            connectionPool.query(query, [newPassword, userId], (error, results) => {
+                if (error) {
+                    console.error('Error updating password:', error);
+                    res.status(500).send('Error updating password');
+                    return;
+                }
+
+                res.send('Password updated successfully');
+            });
         });
 
 
