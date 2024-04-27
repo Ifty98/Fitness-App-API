@@ -57,7 +57,6 @@ async function startServer() {
         app.get('/user/:id', (req, res) => {
             const userId = req.params.id;
 
-            // Query to get username and password of user by ID
             const query = 'SELECT username, password FROM user WHERE id = ?';
 
             connectionPool.query(query, [userId], (error, results) => {
@@ -289,7 +288,7 @@ async function startServer() {
 
         app.put('/updateAge/:id', (req, res) => {
             const userId = req.params.id;
-            const newAge = req.query.age; // Use req.query to get parameters from the query string
+            const newAge = req.query.age;
 
             if (!newAge) {
                 res.status(400).send('New age is required');
@@ -317,18 +316,15 @@ async function startServer() {
 
         app.put('/updateWeight/:id', (req, res) => {
             const userId = req.params.id;
-            const newWeight = req.query.weight; // Use req.query to get parameters from the query string
+            const newWeight = req.query.weight;
 
-            // Validate input parameters
             if (!newWeight) {
                 res.status(400).send('New weight is required');
                 return;
             }
 
-            // Construct SQL query to update user's weight by ID
             const query = 'UPDATE personal_data SET weight = ? WHERE id = ?';
 
-            // Execute SQL query
             connectionPool.query(query, [newWeight, userId], (error, results) => {
                 if (error) {
                     console.error('Error updating weight:', error);
@@ -366,27 +362,21 @@ async function startServer() {
             });
         });
 
-        // Define route to create a new activity entry
         app.post('/activities', (req, res) => {
-            // Extract data from the query parameters
             const { user_id, name, total_time, calories_burned } = req.query;
 
-            // Validate input parameters
             if (!user_id || !name || !total_time || !calories_burned) {
                 return res.status(400).send('Missing required parameters');
             }
 
-            // Construct SQL query to insert new activity entry
             const query = 'INSERT INTO activity (user_id, name, total_time, calories_burned) VALUES (?, ?, ?, ?)';
 
-            // Execute SQL query
             connectionPool.query(query, [user_id, name, total_time, calories_burned], (error, results) => {
                 if (error) {
                     console.error('Error creating activity:', error);
                     return res.status(500).send('Error creating activity');
                 }
 
-                // Return success response
                 res.status(201).json({ message: 'Activity created successfully', activityId: results.insertId });
             });
         });
@@ -442,7 +432,7 @@ async function startServer() {
 
         app.put('/updateProject/:projectId', (req, res) => {
             const projectId = req.params.projectId;
-            const status = req.query.status; // Retrieve status from query parameters
+            const status = req.query.status;
 
             if (!projectId || !status) {
                 return res.status(400).json({ error: 'Project ID and status are required.' });
@@ -499,17 +489,14 @@ async function startServer() {
         app.get('/projects/:user_id', (req, res) => {
             const user_id = req.params.user_id;
 
-            // Query to get projects with specified user_id
             const query = 'SELECT * FROM project WHERE user_id = ?';
 
-            // Execute the query
             connectionPool.query(query, [user_id], (err, results) => {
                 if (err) {
                     console.error(err);
                     return res.status(500).json({ error: 'Internal Server Error' });
                 }
 
-                // Send the results as JSON response
                 res.status(200).json(results);
             });
         });
@@ -542,7 +529,6 @@ async function startServer() {
         app.get('/subtasks/:projectId', (req, res) => {
             const projectId = req.params.projectId;
 
-            // Query the database to retrieve subtasks with the specified projectId
             connectionPool.query(
                 'SELECT * FROM subtask WHERE project_id = ?',
                 [projectId],
@@ -560,10 +546,8 @@ async function startServer() {
         app.get('/activities/:user_id', (req, res) => {
             const userId = req.params.user_id;
         
-            // Construct SQL query to select all activity entries by user_id
             const query = 'SELECT * FROM activity WHERE user_id = ?';
         
-            // Execute SQL query
             connectionPool.query(query, [userId], (error, results) => {
                 if (error) {
                     console.error('Error fetching activity entries:', error);
@@ -571,13 +555,11 @@ async function startServer() {
                     return;
                 }
         
-                // Check if any entries were found
                 if (results.length === 0) {
                     res.status(404).json({ message: 'No activity entries found for user_id' });
                     return;
                 }
         
-                // Return the activity entries
                 res.status(200).json(results);
             });
         });
@@ -585,7 +567,7 @@ async function startServer() {
 
         app.put('/updateSubtask/:subtaskId', (req, res) => {
             const subtaskId = req.params.subtaskId;
-            const { status } = req.query; // Retrieve status from query parameters
+            const { status } = req.query;
 
             if (!subtaskId || !status) {
                 return res.status(400).json({ error: 'Subtask ID and status are required.' });
@@ -614,7 +596,6 @@ async function startServer() {
         app.delete('/subtasks/:subtaskId', (req, res) => {
             const subtaskId = req.params.subtaskId;
 
-            // Your logic to delete the subtask from the database
             connectionPool.query(
                 'DELETE FROM subtask WHERE id = ?',
                 [subtaskId],
@@ -629,11 +610,9 @@ async function startServer() {
             );
         });
 
-        // Express route to delete a project by ID and its associated subtasks
         app.delete('/projects/:projectId', (req, res) => {
             const projectId = req.params.projectId;
 
-            // Delete subtasks associated with the project
             connectionPool.query(
                 'DELETE FROM subtask WHERE project_id = ?',
                 [projectId],
@@ -643,8 +622,6 @@ async function startServer() {
                         return res.status(500).json({ error: 'Internal Server Error' });
                     }
                     console.log('Subtasks deleted successfully:', subtaskResults);
-
-                    // Now delete the project
                     connectionPool.query(
                         'DELETE FROM project WHERE id = ?',
                         [projectId],
@@ -657,57 +634,6 @@ async function startServer() {
                             res.status(200).json({ message: 'Project and associated subtasks deleted successfully' });
                         }
                     );
-                }
-            );
-        });
-
-
-
-
-        app.post('/createDisability', (req, res) => {
-            const { user_id, name, description } = req.body;
-
-            if (!user_id || !name || !description) {
-                return res.status(400).json({ error: 'User ID, name, and description are required.' });
-            }
-
-            const trimmedName = name.trim();
-            const trimmedDescription = description.trim();
-
-            connectionPool.query(
-                'INSERT INTO disabilities (user_id, name, description) VALUES (?, ?, ?)',
-                [user_id, trimmedName, trimmedDescription],
-                (err, results) => {
-                    if (err) {
-                        console.error(err);
-                        return res.status(500).json({ error: 'Internal Server Error' });
-                    }
-
-                    res.status(201).json({ message: 'Disability created successfully.' });
-                }
-            );
-        });
-
-        app.post('/createActivity', (req, res) => {
-            const { user_id, name, total_time, calories_burned } = req.body;
-
-            if (!user_id || !name || !total_time || !calories_burned) {
-                return res.status(400).json({ error: 'User ID, name, total time, and calories burned are required.' });
-            }
-
-            const trimmedName = name.trim();
-            const trimmedTotalTime = total_time.trim();
-
-            connectionPool.query(
-                'INSERT INTO activity (user_id, name, total_time, calories_burned) VALUES (?, ?, ?, ?)',
-                [user_id, trimmedName, trimmedTotalTime, calories_burned],
-                (err, results) => {
-                    if (err) {
-                        console.error(err);
-                        return res.status(500).json({ error: 'Internal Server Error' });
-                    }
-
-                    res.status(201).json({ message: 'Activity created successfully.' });
                 }
             );
         });
