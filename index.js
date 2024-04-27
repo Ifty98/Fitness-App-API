@@ -557,6 +557,31 @@ async function startServer() {
             );
         });
 
+        app.get('/activities/:user_id', (req, res) => {
+            const userId = req.params.user_id;
+        
+            // Construct SQL query to select all activity entries by user_id
+            const query = 'SELECT * FROM activity WHERE user_id = ?';
+        
+            // Execute SQL query
+            connectionPool.query(query, [userId], (error, results) => {
+                if (error) {
+                    console.error('Error fetching activity entries:', error);
+                    res.status(500).send('Error fetching activity entries');
+                    return;
+                }
+        
+                // Check if any entries were found
+                if (results.length === 0) {
+                    res.status(404).json({ message: 'No activity entries found for user_id' });
+                    return;
+                }
+        
+                // Return the activity entries
+                res.status(200).json(results);
+            });
+        });
+
 
         app.put('/updateSubtask/:subtaskId', (req, res) => {
             const subtaskId = req.params.subtaskId;
