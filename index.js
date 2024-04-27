@@ -287,6 +287,35 @@ async function startServer() {
             );
         });
 
+        app.put('/updateAge/:id', (req, res) => {
+            const userId = req.params.id;
+            const newAge = req.query.age; // Use req.query to get parameters from the query string
+        
+            if (!newAge) {
+                res.status(400).send('New age is required');
+                return;
+            }
+        
+            const query = 'UPDATE personal_data SET age = ? WHERE id = ?';
+        
+            // Execute SQL query
+            connectionPool.query(query, [newAge, userId], (error, results) => {
+                if (error) {
+                    console.error('Error updating age:', error);
+                    res.status(500).send('Error updating age');
+                    return;
+                }
+        
+                if (results.affectedRows === 0) {
+                    res.status(404).json({ message: 'User not found' });
+                    return;
+                }
+        
+                res.status(200).json({ message: 'Age updated successfully' });
+            });
+        });
+        
+
         app.post('/step-counter', (req, res) => {
             const { user_id, date, steps } = req.query;
 
