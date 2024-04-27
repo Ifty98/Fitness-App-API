@@ -127,30 +127,30 @@ async function startServer() {
         app.put('/user/:id', (req, res) => {
             const userId = req.params.id;
             const password = req.query.password;
-        
+
             if (!password) {
                 res.status(400).send('New password is required');
                 return;
             }
-        
+
             const query = 'UPDATE user SET password = ? WHERE id = ?';
-        
+
             connectionPool.query(query, [password, userId], (error, results) => {
                 if (error) {
                     console.error('Error updating password:', error);
                     res.status(500).send('Error updating password');
                     return;
                 }
-        
+
                 if (results.affectedRows === 0) {
                     res.status(404).json({ message: 'User not found' });
                     return;
                 }
-        
+
                 res.status(200).json({ message: 'Changed password successfully' });
             });
-        });        
-        
+        });
+
 
         app.get('/checkUsername', (req, res) => {
             const { username } = req.query;
@@ -290,19 +290,49 @@ async function startServer() {
         app.put('/updateAge/:id', (req, res) => {
             const userId = req.params.id;
             const newAge = req.query.age; // Use req.query to get parameters from the query string
-        
+
             if (!newAge) {
                 res.status(400).send('New age is required');
                 return;
             }
-        
+
             const query = 'UPDATE personal_data SET age = ? WHERE id = ?';
-        
+
             // Execute SQL query
             connectionPool.query(query, [newAge, userId], (error, results) => {
                 if (error) {
                     console.error('Error updating age:', error);
                     res.status(500).send('Error updating age');
+                    return;
+                }
+
+                if (results.affectedRows === 0) {
+                    res.status(404).json({ message: 'User not found' });
+                    return;
+                }
+
+                res.status(200).json({ message: 'Age updated successfully' });
+            });
+        });
+
+        app.put('/updateWeight/:id', (req, res) => {
+            const userId = req.params.id;
+            const newWeight = req.query.weight; // Use req.query to get parameters from the query string
+        
+            // Validate input parameters
+            if (!newWeight) {
+                res.status(400).send('New weight is required');
+                return;
+            }
+        
+            // Construct SQL query to update user's weight by ID
+            const query = 'UPDATE personal_data SET weight = ? WHERE id = ?';
+        
+            // Execute SQL query
+            connectionPool.query(query, [newWeight, userId], (error, results) => {
+                if (error) {
+                    console.error('Error updating weight:', error);
+                    res.status(500).send('Error updating weight');
                     return;
                 }
         
@@ -311,10 +341,10 @@ async function startServer() {
                     return;
                 }
         
-                res.status(200).json({ message: 'Age updated successfully' });
+                res.status(200).json({ message: 'Weight updated successfully' });
             });
         });
-        
+
 
         app.post('/step-counter', (req, res) => {
             const { user_id, date, steps } = req.query;
