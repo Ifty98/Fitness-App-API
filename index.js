@@ -318,16 +318,16 @@ async function startServer() {
         app.put('/updateWeight/:id', (req, res) => {
             const userId = req.params.id;
             const newWeight = req.query.weight; // Use req.query to get parameters from the query string
-        
+
             // Validate input parameters
             if (!newWeight) {
                 res.status(400).send('New weight is required');
                 return;
             }
-        
+
             // Construct SQL query to update user's weight by ID
             const query = 'UPDATE personal_data SET weight = ? WHERE id = ?';
-        
+
             // Execute SQL query
             connectionPool.query(query, [newWeight, userId], (error, results) => {
                 if (error) {
@@ -335,12 +335,12 @@ async function startServer() {
                     res.status(500).send('Error updating weight');
                     return;
                 }
-        
+
                 if (results.affectedRows === 0) {
                     res.status(404).json({ message: 'User not found' });
                     return;
                 }
-        
+
                 res.status(200).json({ message: 'Weight updated successfully' });
             });
         });
@@ -365,6 +365,32 @@ async function startServer() {
                 res.status(201).json({ message: 'New entry added to step_counter' });
             });
         });
+
+        // Define route to create a new activity entry
+        app.post('/activities', (req, res) => {
+            // Extract data from the query parameters
+            const { user_id, name, total_time, calories_burned } = req.query;
+
+            // Validate input parameters
+            if (!user_id || !name || !total_time || !calories_burned) {
+                return res.status(400).send('Missing required parameters');
+            }
+
+            // Construct SQL query to insert new activity entry
+            const query = 'INSERT INTO activity (user_id, name, total_time, calories_burned) VALUES (?, ?, ?, ?)';
+
+            // Execute SQL query
+            connectionPool.query(query, [user_id, name, total_time, calories_burned], (error, results) => {
+                if (error) {
+                    console.error('Error creating activity:', error);
+                    return res.status(500).send('Error creating activity');
+                }
+
+                // Return success response
+                res.status(201).json({ message: 'Activity created successfully', activityId: results.insertId });
+            });
+        });
+
 
 
         app.get('/step-counter/:userId', (req, res) => {
