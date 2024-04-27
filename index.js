@@ -127,8 +127,8 @@ async function startServer() {
         app.put('/user/:id', (req, res) => {
             const userId = req.params.id;
             const password = req.query.password;
-
-            if (password) {
+        
+            if (!password) {
                 res.status(400).send('New password is required');
                 return;
             }
@@ -149,9 +149,8 @@ async function startServer() {
         
                 res.status(200).json({ message: 'Changed password successfully' });
             });
-        });
+        });        
         
-
 
         app.get('/checkUsername', (req, res) => {
             const { username } = req.query;
